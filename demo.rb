@@ -19,12 +19,12 @@ use Rack::Session::Dalli, :cache => dalli_client
 # Set up the OAuth2 client
 def oauth2_client
   OAuth2::Client.new(
-    ENV['CLIENT_ID'],
-    ENV['CLIENT_SECRET'], 
-    :site => ENV['LOGIN_SERVER'], 
+    ENV['FORCE_CLIENT_ID'],
+    ENV['FORCE_CLIENT_SECRET'],
+    :site => ENV['FORCE_LOGIN_SERVER'], 
     :authorize_url =>'/services/oauth2/authorize', 
     :token_url => '/services/oauth2/token',
-    :raise_errors => false
+    :raise_errors => true
   )
 end
 
@@ -169,7 +169,7 @@ get '/logout' do
   # First kill the access token
   # (Strictly speaking, we could just do a plain GET on the revoke URL, but
   # then we'd need to pull in Net::HTTP or somesuch)
-  @access_token.get(ENV['LOGIN_SERVER']+'/services/oauth2/revoke?token='+session['access_token'])
+  @access_token.get(ENV['FORCE_LOGIN_SERVER']+'/services/oauth2/revoke?token='+session['access_token'])
   # Now save the logout_url
   @logout_url = session['instance_url']+'/secur/logout.jsp'
   # Clean up the session
@@ -182,7 +182,7 @@ end
 
 get '/revoke' do
   # For testing - revoke the token, but leave it in place, so we can test refresh
-  @access_token.get(ENV['LOGIN_SERVER']+'/services/oauth2/revoke?token='+session['access_token'])
+  @access_token.get(ENV['FORCE_LOGIN_SERVER']+'/services/oauth2/revoke?token='+session['access_token'])
   puts "Revoked token #{@access_token.token}"
   "Revoked token #{@access_token.token}"
 end
